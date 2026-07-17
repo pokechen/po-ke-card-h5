@@ -6,7 +6,7 @@
 
 - 纯静态前端：HTML + CSS + 原生 JavaScript（无构建步骤、无前端框架）。
 - 卡牌数据来自 `docs/gwent_cards.json`，由 `app.js` 通过 `fetch` 加载。
-- `functions/api/auth/*` 是为云函数（CloudBase / 微信云开发）预留的登录鉴权接口，**当前前端为 standalone 模式，`requireLoggedIn()` 始终返回 `true`，本地运行不需要这些后端服务**。
+- 当前为**纯单机版本**：仅支持本地双人热座与系统对战，无任何联网 / 登录 / 后端依赖。
 
 ## 本地启动
 
@@ -41,8 +41,7 @@ npx serve -l 8080
 ├── app.js              # 全部游戏逻辑（昆特牌规则、UI、AI）
 ├── styles.css          # 样式
 ├── docs/               # 卡牌资料（md）与卡牌数据（json）
-├── assets/             # 卡面图片（webp/svg）
-└── functions/api/auth/ # 预留的云函数登录接口（本地运行无需）
+└── assets/             # 卡面图片（webp/svg）
 ```
 
 ## 常见问题

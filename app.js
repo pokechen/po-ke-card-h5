@@ -18,24 +18,24 @@ const AI_STUCK_TIMEOUT = 5000; // 5秒安全超时
 const AI_TURN_DELAY = 480; // 系统行动节奏：保留可读反馈，同时减少等待感
 const MULLIGAN_MAX = 2;
 const ROWS = ["melee", "ranged", "siege"];
-const ROW_LABELS = { melee: "近战", ranged: "远程", siege: "攻城" };
+const ROW_LABELS = { melee: "疆场", ranged: "朝堂", siege: "文脉" };
 const FACTIONS = ["Northern Realms", "Nilfgaardian Empire", "Scoia'tael", "Monsters", "Skellige"];
 const DIFFICULTY_CN = { easy: "简单", normal: "普通", hard: "困难" };
 const FACTION_CN = {
-  "Northern Realms": "北方领域",
-  "Nilfgaardian Empire": "尼弗迦德帝国",
-  "Scoia'tael": "松鼠党",
-  "Monsters": "怪物",
-  "Skellige": "史凯利杰",
-  "Neutral": "中立"
+  "Northern Realms": "开国群雄",
+  "Nilfgaardian Empire": "纵横权谋",
+  "Scoia'tael": "百家争鸣",
+  "Monsters": "草莽星火",
+  "Skellige": "遗策复兴",
+  "Neutral": "天下共识"
 };
 const EXPANSION_CN = { "Base game": "本体", "Hearts of Stone": "石之心", "Blood and Wine": "血与酒" };
-const CATEGORY_CN = { unit: "单位", hero: "英雄", leader: "领袖", weather: "天气", special: "特殊" };
+const CATEGORY_CN = { unit: "人物", hero: "传世", leader: "主将", weather: "时局", special: "谋略" };
 const ABILITY_CN = {
-  "Hero": "英雄", "Spy": "间谍", "Medic": "医生", "Tight Bond": "同袍情深", "Morale Boost": "士气鼓舞",
-  "Muster": "集结", "Agile": "敏捷", "Scorch": "灼烧", "Commander's Horn": "指挥号角",
-  "Summon Shield Maidens": "召唤盾女", "Summon Avenger": "召唤复仇者", "Summon Bovine Defense Force": "召唤牛魔防卫军",
-  "Berserker": "狂战士", "Mardroeme": "蘑菇酒"
+  "Hero": "传世", "Spy": "出使", "Medic": "济世", "Tight Bond": "同盟", "Morale Boost": "振势",
+  "Muster": "集贤", "Agile": "通才", "Scorch": "奇策", "Commander's Horn": "鼓舞",
+  "Summon Shield Maidens": "召唤岳家军", "Summon Avenger": "召唤复仇者", "Summon Sky Hound": "召唤啸天犬",
+  "Berserker": "奋起", "Mardroeme": "破釜"
 };
 const CARD_CN = {
   "Ballista": "弩炮", "Blue Stripes Commando": "蓝衣铁卫突击队", "Catapult": "投石机", "Crinfrid Reavers Dragon Hunter": "克林菲德掠夺者猎龙人", "Dethmold": "戴斯摩", "Dun Banner Medic": "褐旗营医生", "Esterad Thyssen": "艾斯特拉德·泰森", "Foltest: King of Temeria": "弗尔泰斯特：泰莫利亚国王", "Foltest: Lord Commander of the North": "弗尔泰斯特：北方统帅", "Foltest: Son of Medell": "弗尔泰斯特：梅德尔之子", "Foltest: The Siegemaster": "弗尔泰斯特：攻城大师", "Foltest: The Steel-Forged": "弗尔泰斯特：钢铁铸就", "John Natalis": "约翰·纳塔利斯", "Kaedweni Siege Expert": "科德温攻城专家", "Keira Metz": "凯拉·梅兹", "Philippa Eilhart": "菲丽芭·艾哈特", "Poor Fucking Infantry": "可怜步兵", "Prince Stennis": "史坦尼斯王子", "Redanian Foot Soldier": "瑞达尼亚步兵", "Sabrina Glevissig": "萨宾娜·葛丽维希格", "Sheldon Skaggs": "谢尔顿·斯卡格斯", "Siege Tower": "攻城塔", "Siegfried of Denesle": "丹德里恩的齐格弗里德", "Sigismund Dijkstra": "西吉斯蒙德·迪科斯彻", "Síle de Tansarville": "席儿·德·坦沙维耶", "Thaler": "塔勒", "Trebuchet": "抛石机", "Vernon Roche": "弗农·罗契", "Ves": "薇丝", "Yarpen Zigrin": "亚尔潘·齐格林",
@@ -91,12 +91,8 @@ const BROWSER_CARD_LIMIT = 96;
 const RANDOM_STRONG_DECK_VALUE = "__random_strong_deck__";
 const APP_ASSET_BASE = new URL(".", document.currentScript?.src || document.baseURI).href;
 
-// 单机版：不再有登录门控，始终视为已进入游戏
-function hasLoggedInUser() {
-  return true;
-}
-
-function resetProtectedGameState() {
+// 单机版：无联网 / 登录门控，开箱即玩
+function resetGameState() {
   game = null;
   pendingPlacement = null;
   mulligan = null;
@@ -105,26 +101,6 @@ function resetProtectedGameState() {
   $("#placementBanner")?.classList.add("hidden");
   $("#mulliganBanner")?.classList.add("hidden");
   $("#reviveBanner")?.classList.add("hidden");
-}
-
-function hideProtectedScreens() {
-  resetProtectedGameState();
-  $("#setup")?.classList.add("hidden");
-  $("#game")?.classList.add("hidden");
-  $("#cardModal")?.classList.add("hidden");
-  $("#cardModal")?.setAttribute("aria-hidden", "true");
-  $("#feedbackToast")?.classList.add("hidden");
-}
-
-function requireLoggedIn() {
-  return true;
-}
-
-function syncSetupVisibilityWithAuth() {
-  const setupEl = $("#setup");
-  const gameEl = $("#game");
-  if (!setupEl || !gameEl || !DB) return;
-  if (gameEl.classList.contains("hidden")) setupEl.classList.remove("hidden");
 }
 
 function resolveAssetUrl(path) {
@@ -141,8 +117,8 @@ fetch("docs/gwent_cards.json")
   .then(async data => {
     DB = data;
     $("#loader").classList.add("hidden");
+    $("#setup").classList.remove("hidden");
     initSetup();
-    syncSetupVisibilityWithAuth();
   })
   .catch(err => {
     $("#loader").textContent = "卡牌数据加载失败：" + err.message + "。请通过本目录启动本地服务器后再打开 index.html。";
@@ -1135,14 +1111,17 @@ function rowNameList(card) {
 }
 
 function cardAbilityText(card) {
-  if (card.leaderAbility) return leaderAbilityText(card);
-  const abilities = (card.abilities || []).filter(Boolean).map(abilityName);
+  if (card.category === "leader") return card.abilityText || leaderAbilityText(card);
+  if (card.leaderAbility) return card.abilityText || leaderAbilityText(card);
+  // 优先使用数据内嵌的中文效果说明（与小程序一致）
+  if (card.abilityText && String(card.abilityText).trim()) return card.abilityText;
+  const abilities = (card.abilityDisplayNames && card.abilityDisplayNames.length)
+    ? card.abilityDisplayNames.slice()
+    : (card.abilities || []).filter(Boolean).map(abilityName);
   if (abilities.length) return abilities.join("、");
-  const specialText = SPECIAL_CARD_CN[card.baseName];
-  if (specialText) return specialText;
-  if (card.category === "weather") return "天气牌：影响对应战场行。";
-  if (card.category === "special") return "特殊牌：打出后立即结算。";
-  return "普通单位牌。";
+  if (card.category === "weather") return "时局：压制对应阵线，非传世人物战力降为 1。";
+  if (card.category === "special") return "谋略：打出后立即结算。";
+  return "普通人物牌。";
 }
 
 const SPECIAL_CARD_CN = {
@@ -1231,7 +1210,7 @@ function autoDeck(playerIndex) {
   const specialPool = pool.filter(c => c.category === "special" || c.category === "weather").sort((a, b) => cardSortValue(b) - cardSortValue(a));
   const units = unitPool.slice(0, Math.min(26, unitPool.length));
   const specials = specialPool.filter(c => {
-    if (p.faction !== "Skellige" && c.baseName === "Mardroeme") return false;
+    if (p.faction !== "Skellige" && ek(c) === "Mardroeme") return false;
     return true;
   }).slice(0, 10);
   p.deckIds = units.concat(specials).map(c => c.id);
@@ -1357,7 +1336,7 @@ function generateSystemDeck(playerIndex = 1, overrideConfig = null) {
     const group = pickSystemGroup(specialGroups, usedSpecialKeys, config);
     if (!group) break;
     usedSpecialKeys.add(group.key);
-    const maxTake = Math.min(group.cards.length, config.specialTarget - selectedSpecials.length, (config.synergyMode === "full" || config.wholeStrongGroups) && group.card.baseName === "Commander's Horn" ? 2 : 1);
+    const maxTake = Math.min(group.cards.length, config.specialTarget - selectedSpecials.length, (config.synergyMode === "full" || config.wholeStrongGroups) && ek(group.card) === "Commander's Horn" ? 2 : 1);
     group.cards.slice(0, maxTake).forEach(card => selectedSpecials.push(card.id));
   }
   p.deckIds = deckIds.concat(selectedSpecials).slice(0, 40);
@@ -1379,8 +1358,7 @@ function generateRandomStrongDeck(playerIndex) {
 }
 
 function returnToSetup() {
-  if (!requireLoggedIn()) return;
-  resetProtectedGameState();
+  resetGameState();
   $("#game").classList.add("hidden");
   $("#setup").classList.remove("hidden");
   renderPlayerSetups();
@@ -1406,7 +1384,6 @@ function surrender() {
 }
 
 function startGame() {
-  if (!requireLoggedIn()) return;
   const status = $("#setupStatus");
   const validation = validateSetup();
   if (!validation.valid) {
@@ -1431,7 +1408,8 @@ function startGame() {
     finalWinner: null,
     finalScores: [0, 0],
     roundResults: [],
-    historyRecorded: false
+    historyRecorded: false,
+    playedHistory: []
   };
   game.players.forEach(p => draw(p, 10));
   if (game.players[0].faction === "Scoia'tael" && game.players[1].faction !== "Scoia'tael") game.current = 0;
@@ -1538,7 +1516,6 @@ function makeInstance(card, owner) {
 
 function renderGame() {
   if (!game) return;
-  if (!requireLoggedIn()) return;
   $("#roundNo").textContent = game.round;
   const current = game.players[game.current];
   const inMulligan = !!mulligan;
@@ -1551,6 +1528,7 @@ function renderGame() {
   renderReviveBanner();
   renderActionGuide();
   renderHand();
+  renderPlayedHistory();
   const leaderBtn = $("#leaderBtn");
   const passBtn = $("#passBtn");
   const quickRestartBtn = $("#quickRestartBtn");
@@ -2087,9 +2065,9 @@ function playCard(uid, aiChoiceRow = null, isAICall = false) {
 
   if (card.category === "weather" || card.category === "special") {
     // 号角 / 蘑菇酒 需要选择作用行；玩家通过点击战场行选择
-    if (!isAI && (card.baseName === "Commander's Horn" || card.baseName === "Mardroeme")) {
-      const rows = card.baseName === "Mardroeme" ? ["melee", "ranged"] : ROWS;
-      beginPlacement({ uid, kind: "special", rows, label: card.baseName === "Mardroeme" ? "蘑菇酒" : "指挥号角" });
+    if (!isAI && (ek(card) === "Commander's Horn" || ek(card) === "Mardroeme")) {
+      const rows = ek(card) === "Mardroeme" ? ["melee", "ranged"] : ROWS;
+      beginPlacement({ uid, kind: "special", rows, label: cardName(card) });
       return;
     }
     p.hand.splice(idx, 1);
@@ -2124,6 +2102,7 @@ function finalizeUnitPlay(uid, row) {
   // 标记新出的牌用于落牌动画
   card._isNewlyPlayed = true;
   game.players[target].board[row].push(card);
+  recordPlay(card, pi, row);
   log(`${p.name} 打出 ${cardName(card)}${target !== pi ? " 到对方战场" : ""}。`);
   resolveUnitAbility(pi, target, row, card);
   if (pendingPlacement?.kind === "revive") return;
@@ -2197,28 +2176,26 @@ function autoPlayValue(pi, card) {
   let value = cardSortValue(card);
   if (card.category === "weather") {
     const rows = weatherRowsFor(card);
-    if (card.baseName === "Clear Weather") return game.weather.size ? 8 : -4;
+    if (ek(card) === "Clear Weather" || !rows.length) return game.weather.size ? 8 : -4;
     const ownScore = rows.reduce((sum, row) => sum + rowScore(pi, row), 0);
     const oppScore = rows.reduce((sum, row) => sum + rowScore(1 - pi, row), 0);
     return oppScore > ownScore + 4 ? 8 + (oppScore - ownScore) / 2 : -3;
   }
-  if (card.baseName === "Commander's Horn") value += rowScore(pi, bestOwnRow(pi)) / 3;
-  if (card.baseName === "Mardroeme") value += bestBerserkerRow(pi) ? 7 : -2;
-  if (card.baseName === "Decoy") value += bestDecoyTarget(pi) ? 4 : -3;
+  if (ek(card) === "Commander's Horn") value += rowScore(pi, bestOwnRow(pi)) / 3;
+  if (ek(card) === "Mardroeme") value += bestBerserkerRow(pi) ? 7 : -2;
+  if (ek(card) === "Decoy") value += bestDecoyTarget(pi) ? 4 : -3;
   return value;
 }
 
 function weatherRowsFor(card) {
-  if (card.baseName === "Biting Frost") return ["melee"];
-  if (card.baseName === "Impenetrable Fog") return ["ranged"];
-  if (card.baseName === "Torrential Rain") return ["siege"];
-  if (card.baseName === "Skellige Storm") return ["ranged", "siege"];
-  return [];
+  if (ek(card) === "Clear Weather") return [];
+  // 直接采用数据里的 row（疆场/朝堂/文脉），兼容单行与多行时局牌
+  return (card.row || []).slice();
 }
 
 function autoRowForCard(pi, card) {
-  if (card.baseName === "Mardroeme") return bestBerserkerRow(pi) || "melee";
-  if (card.baseName === "Commander's Horn") return bestOwnRow(pi) || "melee";
+  if (ek(card) === "Mardroeme") return bestBerserkerRow(pi) || "melee";
+  if (ek(card) === "Commander's Horn") return bestOwnRow(pi) || "melee";
   if (card.row && card.row.length) return bestRowForCard(pi, card);
   return null;
 }
@@ -2252,7 +2229,8 @@ function finishAutoPendingChoice() {
 }
 
 function resolveSpecial(pi, card, aiRow) {
-  const name = card.baseName;
+  const name = ek(card);
+  recordPlay(card, pi, name === "Commander's Horn" ? (aiRow || bestOwnRow(pi)) : (card.row && card.row[0]));
   if (name === "Biting Frost") addWeather("melee");
   else if (name === "Impenetrable Fog") addWeather("ranged");
   else if (name === "Torrential Rain") addWeather("siege");
@@ -2292,28 +2270,32 @@ function resolveUnitAbility(playedBy, target, row, card) {
     return;
   }
   if (has(card, "Muster")) doMuster(playedBy, target, row, card);
-  if (has(card, "Summon Shield Maidens")) summonByName(playedBy, target, row, "Clan Drummond Shield Maiden");
+  if (has(card, "Summon Shield Maidens")) summonByName(playedBy, target, row, "岳家军");
+  if (has(card, "Summon Sky Hound")) summonToken(playedBy, target, "啸天犬", "melee");
   if (has(card, "Scorch") && card.category !== "special") doScorch(playedBy, row, true);
 }
 
 function doMuster(playedBy, target, row, card) {
   const p = game.players[playedBy];
-  const names = [card.baseName];
-  if (card.baseName === "Gaunter O'Dimm") names.push("Gaunter O'Dimm: Darkness");
-  if (card.baseName === "Gaunter O'Dimm: Darkness") names.push("Gaunter O'Dimm");
+  // 优先按集贤分组(musterGroup)匹配（支持“桃园三杰=刘备/关羽/张飞”这类异名同组），否则退回同名匹配
+  const group = card.musterGroup || "";
+  const matches = c => c.uid !== card.uid && (group ? c.musterGroup === group : c.baseName === card.baseName);
   let moved = 0;
   [p.hand, p.deck].forEach(pile => {
     for (let i = pile.length - 1; i >= 0; i--) {
       const c = pile[i];
-      if (c.uid !== card.uid && names.includes(c.baseName)) {
+      if (matches(c)) {
         pile.splice(i, 1);
         const r = c.row.includes(row) ? row : (c.row[0] || row);
+        c.playedBy = playedBy;
+        c.owner = target;
+        c._isNewlyPlayed = true;
         game.players[target].board[r].push(c);
         moved++;
       }
     }
   });
-  if (moved) log(`${p.name} 的集结生效，额外打出 ${moved} 张关联牌。`);
+  if (moved) log(`${p.name} 的集贤生效，额外打出 ${moved} 张关联牌。`);
 }
 
 function summonByName(playedBy, target, row, baseName) {
@@ -2324,12 +2306,29 @@ function summonByName(playedBy, target, row, baseName) {
       const c = pile[i];
       if (c.baseName === baseName) {
         pile.splice(i, 1);
-        game.players[target].board[row].push(c);
+        const r = c.row.includes(row) ? row : (c.row[0] || row);
+        c.playedBy = playedBy;
+        c.owner = target;
+        c._isNewlyPlayed = true;
+        game.players[target].board[r].push(c);
         moved++;
       }
     }
   });
-  if (moved) log(`${p.name} 召唤了 ${moved} 张 ${CARD_CN[baseName] || "关联卡牌"}。`);
+  if (moved) log(`${p.name} 召唤了 ${moved} 张 ${baseName}。`);
+}
+
+// 召唤衍生卡（token，如“啸天犬”），从 DB.tokens 生成实例直接上场
+function summonToken(playedBy, target, baseName, fallbackRow) {
+  if (!DB.tokens) return;
+  const token = tokenCard(baseName, target);
+  if (!token) return;
+  const row = (token.row && token.row.includes(fallbackRow)) ? fallbackRow : (token.row && token.row[0]) || fallbackRow;
+  token.playedBy = playedBy;
+  token.owner = target;
+  token._isNewlyPlayed = true;
+  game.players[target].board[row].push(token);
+  log(`${game.players[playedBy].name} 召唤了 ${baseName}。`);
 }
 
 function reviveBest(pi) {
@@ -2464,15 +2463,22 @@ function transformBerserkers(pi, row) {
   [0, 1].forEach(pidx => {
     game.players[pidx].board[row].forEach(c => {
       if (has(c, "Berserker") && !c.transformed) {
-        c.baseName = c.baseName.includes("Young") ? "年轻狂战士熊形态" : "狂战士熊形态";
-        c.strength = 8;
-        c.abilities = c.abilities.filter(a => a !== "Berserker");
+        // 破釜转化：疆场(近战)奋起 -> 背水死士(14, 振势)，朝堂(远程)奋起 -> 背水锐卒(8, 同盟)
+        if (row === "ranged") {
+          c.name = c.baseName = "背水锐卒";
+          c.strength = 8;
+          c.abilities = ["Tight Bond"];
+        } else {
+          c.name = c.baseName = "背水死士";
+          c.strength = 14;
+          c.abilities = ["Morale Boost"];
+        }
         c.transformed = true;
         n++;
       }
     });
   });
-  log(`蘑菇酒让 ${n} 张狂战士变身。`);
+  if (n) log(`破釜之力让 ${n} 张奋起人物转化。`);
 }
 
 function useLeader() {
@@ -2618,14 +2624,16 @@ function cleanupRound() {
       p.board[r].forEach(c => {
         if (keepIds.has(c.uid)) next.push(c);
         else {
-          if (has(c, "Summon Bovine Defense Force")) p.retained.push(tokenCard("Bovine Defense Force", pi));
-          if (has(c, "Summon Avenger")) p.retained.push(tokenCard("Hemdall", pi));
+          if (has(c, "Summon Avenger")) {
+            const avenger = tokenCard("复仇者", pi);
+            if (avenger) p.retained.push(avenger);
+          }
           p.discard.push(c);
         }
       });
       p.board[r] = next;
     });
-    p.retained.forEach(t => p.board[t.row[0]].push(t));
+    p.retained.filter(Boolean).forEach(t => p.board[t.row[0]].push(t));
     if (p.retained.length) log(`${p.name} 的特殊召唤物进入新回合。`);
     p.retained = [];
     if (keep.length) log(`${p.name} 的怪物阵营被动保留了 ${cardName(keep[0].card)}。`);
@@ -2633,17 +2641,18 @@ function cleanupRound() {
 }
 
 function tokenCard(name, owner) {
-  const raw = DB.tokens.find(t => t.baseName === name);
+  const raw = DB.tokens.find(t => t.baseName === name || t.name === name);
+  if (!raw) return null;
   return makeInstance({
-    id: "token-" + name,
-    name,
-    baseName: name,
+    id: "token-" + (raw.baseName || raw.name),
+    name: raw.name || name,
+    baseName: raw.name || raw.baseName || name,
     faction: raw.faction,
     category: raw.category,
     row: raw.row,
     strength: raw.strength,
     abilities: raw.abilities,
-    abilityText: raw.abilities.join(", "),
+    abilityText: raw.abilityText || (raw.abilities || []).join(", "),
     imageUrl: raw.imageUrl,
     hero: raw.category === "hero"
   }, owner);
@@ -2706,7 +2715,8 @@ function recalcScores() {
       cards.forEach(c => {
         let value = c.strength || 0;
         if (!c.hero && game.weather.has(row)) {
-          value = p.leader && p.leader.baseName === "King Bran" ? Math.ceil(value / 2) : Math.min(value, 1);
+          const halfWeather = p.leader && /half (of )?(their )?strength|一半战力|半损/.test((p.leader.leaderAbility || p.leader.abilityText || "").toLowerCase());
+          value = halfWeather ? Math.ceil(value / 2) : Math.min(value, 1);
         }
         if (!c.hero && has(c, "Tight Bond") && bondCounts[c.baseName] > 1) value *= bondCounts[c.baseName];
         if (!c.hero) {
@@ -2804,7 +2814,7 @@ function aiTurn() {
   const card = decision.card;
   let row = decision.row;
   if (!row) {
-    if (card.category === "special" && ["Commander's Horn", "Mardroeme"].includes(card.baseName)) row = bestOwnRow(1);
+    if (card.category === "special" && ["Commander's Horn", "Mardroeme"].includes(ek(card))) row = bestOwnRow(1);
     else if (card.row && card.row.length) row = bestRowForCard(1, card);
   }
   playCard(card.uid, row, true);
@@ -2823,20 +2833,20 @@ function aiPlayGain(card) {
   if (card.category === "weather") {
     return aiWeatherGain(card);
   }
-  if (card.baseName === "Clear Weather") {
+  if (ek(card) === "Clear Weather") {
     return game.weather.size ? aiClearWeatherGain() : -3;
   }
-  if (card.baseName === "Commander's Horn") {
+  if (ek(card) === "Commander's Horn") {
     const row = bestOwnRow(1);
     return Math.max(4, rowScore(1, row));
   }
-  if (card.baseName === "Scorch") {
+  if (ek(card) === "Scorch") {
     return aiScorchGain();
   }
-  if (card.baseName === "Decoy") {
+  if (ek(card) === "Decoy") {
     return bestDecoyTarget(1) ? 5 : -3;
   }
-  if (card.baseName === "Mardroeme") {
+  if (ek(card) === "Mardroeme") {
     return bestBerserkerRow(1) ? 6 : -2;
   }
   // 普通单位：估算落场后的有效战力
@@ -2966,7 +2976,7 @@ function aiBestCards(cfg) {
     // 难度失误：低难度加入随机噪声，偶尔选到次优牌
     if (cfg.valueNoise) gain += (Math.random() * 2 - 1) * cfg.valueNoise;
     let row = null;
-    if (card.category === "special" && ["Commander's Horn", "Mardroeme"].includes(card.baseName)) row = bestOwnRow(1);
+    if (card.category === "special" && ["Commander's Horn", "Mardroeme"].includes(ek(card))) row = bestOwnRow(1);
     else if (card.row && card.row.length) row = bestRowForCard(1, card);
     return { card, row, gain };
   }).sort((a, b) => b.gain - a.gain);
@@ -3008,6 +3018,54 @@ function bestOwnRow(pi) {
 
 function has(card, ability) {
   return (card.abilities || []).includes(ability);
+}
+
+// 引擎规范名：中文卡牌用 engineName 提供英文规范名（天气/特殊牌等），供沿用巫师三规则的引擎结算识别；
+// 无 engineName 时回退到 baseName。显示层始终用中文 name / baseName。
+function ek(card) {
+  return (card && card.engineName) || (card && card.baseName) || "";
+}
+
+// 记录一次出牌，供“出牌历史”区域展示（按时间顺序）
+function recordPlay(card, byIndex, row) {
+  if (!game || !game.playedHistory) return;
+  game.playedHistory.push({
+    name: cardName(card),
+    imageUrl: card.imageUrl || "",
+    faction: card.faction,
+    category: card.category,
+    strength: card.strength,
+    hero: !!card.hero,
+    by: byIndex,
+    byName: game.players[byIndex] ? game.players[byIndex].name : "",
+    row: row || (card.row && card.row[0]) || "",
+    round: game.round
+  });
+}
+
+function renderPlayedHistory() {
+  const el = $("#playHistory");
+  if (!el) return;
+  const list = (game && game.playedHistory) || [];
+  if (!list.length) {
+    el.innerHTML = `<p class="play-history-empty hint">还没有出牌记录，出牌后会显示在这里。</p>`;
+    return;
+  }
+  // 最新的在最前面
+  const items = list.slice().reverse().map(item => {
+    const sideClass = item.by === 0 ? "by-me" : "by-opp";
+    const rowText = item.row ? ROW_LABELS[item.row] || "" : "";
+    const meta = [item.byName, `第${item.round}回合`, rowText].filter(Boolean).join(" · ");
+    const art = item.imageUrl
+      ? `<img class="ph-art" src="${escapeAttr(resolveAssetUrl(item.imageUrl))}" alt="${escapeAttr(item.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.remove()">`
+      : `<span class="ph-noart">${escapeHtml((item.name || "").slice(0, 2))}</span>`;
+    const strength = (item.category === "unit" || item.category === "hero") ? `<span class="ph-strength">${item.strength}</span>` : "";
+    return `<div class="ph-item ${sideClass}">
+      <div class="ph-thumb">${art}${strength}</div>
+      <div class="ph-info"><span class="ph-name">${escapeHtml(item.name)}</span><span class="ph-meta">${escapeHtml(meta)}</span></div>
+    </div>`;
+  }).join("");
+  el.innerHTML = items;
 }
 
 function log(message) {

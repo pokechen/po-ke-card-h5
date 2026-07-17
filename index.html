@@ -3,23 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>来盘昆特牌吧</title>
-  <link rel="stylesheet" href="styles.css?v=authgate-20260703b" />
+  <title>来盘章鱼牌吧</title>
+  <link rel="stylesheet" href="styles.css?v=zhangyu-20260717" />
 </head>
 <body>
-  <header class="topbar protected-shell">
+  <header class="topbar">
     <div>
-      <p class="eyebrow">巫师三 · 昆特牌</p>
-      <h1>来盘昆特牌吧</h1>
-      <p class="subtitle">选阵营、配卡组，支持本地双人热座与系统对战。核心规则已按《巫师3》昆特牌整理并实现。</p>
+      <p class="eyebrow">中国历史 · 章鱼牌</p>
+      <h1>来盘章鱼牌吧</h1>
+      <p class="subtitle">选派系、配牌组，支持本地双人热座与系统对战。卡牌、能力、派系与领袖与微信小游戏《来盘章鱼牌吧》保持一致。</p>
     </div>
     <nav class="toplinks">
-      <a href="docs/20260630_gwent_cards.md" target="_blank">卡牌资料</a>
-      <a href="docs/gwent_cards.json" target="_blank">JSON 数据</a>
+      <a href="docs/gwent_cards.json" target="_blank">卡牌数据</a>
     </nav>
   </header>
 
-  <main class="protected-shell">
+  <main>
     <section id="loader" class="panel center">正在加载卡牌数据...</section>
 
     <section id="setup" class="setup hidden">
@@ -28,7 +27,6 @@
           <h2>1. 选择模式</h2>
           <div class="mode-row">
             <label class="radio-card"><input type="radio" name="mode" value="ai" checked /> 玩家对战系统</label>
-            <label class="radio-card"><input type="radio" name="mode" value="hotseat" /> 双方本地对战</label>
           </div>
           <p class="hint">系统对战会自动选阵营和组牌；本地对战会隐藏非当前玩家手牌，适合两个人轮流操作。</p>
         </div>
@@ -89,6 +87,14 @@
         <div id="reviveBanner" class="revive-banner hidden"></div>
 
         <div id="board" class="board"></div>
+
+        <div class="panel play-history-panel">
+          <div class="section-head">
+            <h2>出牌历史</h2>
+            <span class="hint">按时间顺序记录双方每次出牌</span>
+          </div>
+          <div id="playHistory" class="play-history"></div>
+        </div>
 
         <div class="panel hand-panel">
           <div class="section-head hand-head">
