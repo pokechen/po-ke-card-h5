@@ -6,7 +6,7 @@
   <title>来盘昆特牌吧</title>
   <link rel="stylesheet" href="styles.css?v=authgate-20260703b" />
 </head>
-<body class="auth-locked">
+<body>
   <header class="topbar protected-shell">
     <div>
       <p class="eyebrow">巫师三 · 昆特牌</p>
@@ -14,14 +14,10 @@
       <p class="subtitle">选阵营、配卡组，支持本地双人热座与系统对战。核心规则已按《巫师3》昆特牌整理并实现。</p>
     </div>
     <nav class="toplinks">
-      <div id="userBar" class="user-bar hidden"></div>
       <a href="docs/20260630_gwent_cards.md" target="_blank">卡牌资料</a>
       <a href="docs/gwent_cards.json" target="_blank">JSON 数据</a>
     </nav>
   </header>
-
-  <!-- 登录/注册界面 -->
-  <section id="authScreen" class="auth-screen hidden"></section>
 
   <main class="protected-shell">
     <section id="loader" class="panel center">正在加载卡牌数据...</section>
@@ -140,7 +136,6 @@
     </div>
   </template>
 
-  <script src="auth.js?v=authlocal-20260708"></script>
-  <script src="app.js?v=authlocal-20260708"></script>
+  <script src="app.js?v=standalone-20260717"></script>
 </body>
 </html>

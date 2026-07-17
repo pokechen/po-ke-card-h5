@@ -91,12 +91,9 @@ const BROWSER_CARD_LIMIT = 96;
 const RANDOM_STRONG_DECK_VALUE = "__random_strong_deck__";
 const APP_ASSET_BASE = new URL(".", document.currentScript?.src || document.baseURI).href;
 
-function getAuthModule() {
-  return typeof Auth !== "undefined" ? Auth : window.Auth;
-}
-
+// 单机版：不再有登录门控，始终视为已进入游戏
 function hasLoggedInUser() {
-  return Boolean(getAuthModule()?.getCurrentUser?.());
+  return true;
 }
 
 function resetProtectedGameState() {
@@ -120,24 +117,15 @@ function hideProtectedScreens() {
 }
 
 function requireLoggedIn() {
-  if (hasLoggedInUser()) return true;
-  hideProtectedScreens();
-  getAuthModule()?.redirectToLogin?.();
-  return false;
+  return true;
 }
 
 function syncSetupVisibilityWithAuth() {
   const setupEl = $("#setup");
   const gameEl = $("#game");
   if (!setupEl || !gameEl || !DB) return;
-  if (hasLoggedInUser()) {
-    if (gameEl.classList.contains("hidden")) setupEl.classList.remove("hidden");
-  } else {
-    hideProtectedScreens();
-  }
+  if (gameEl.classList.contains("hidden")) setupEl.classList.remove("hidden");
 }
-
-document.addEventListener("auth:change", syncSetupVisibilityWithAuth);
 
 function resolveAssetUrl(path) {
   if (!path) return "";
@@ -154,10 +142,6 @@ fetch("docs/gwent_cards.json")
     DB = data;
     $("#loader").classList.add("hidden");
     initSetup();
-    const auth = getAuthModule();
-    if (auth?.whenReady) {
-      await auth.whenReady();
-    }
     syncSetupVisibilityWithAuth();
   })
   .catch(err => {
